@@ -1,4 +1,4 @@
-describe('Cart Tests', () => {
+describe('Inventory Tests', () => {
     const baseUrl = 'https://www.saucedemo.com';
   
     beforeEach(() => {
