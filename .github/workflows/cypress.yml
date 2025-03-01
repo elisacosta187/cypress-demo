@@ -1,0 +1,45 @@
+name: Cypress Tests in Docker
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker BuildKit
+        run: |
+          export DOCKER_BUILDKIT=1
+          export COMPOSE_DOCKER_CLI_BUILD=1
+
+      - name: Build Docker Images
+        run: docker-compose build
+
+      - name: Start Services & Run Cypress
+        run: docker-compose up --exit-code-from cypress
+
+      - name: Upload Cypress Screenshots (if failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - name: Upload Cypress Videos (if failed)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+
+      - name: Stop and Clean Up
+        run: docker-compose down
